@@ -1,4 +1,4 @@
-class LightBulb:
+class Bulb:
     """Light Bulb
 
     name is the name of light bulb
