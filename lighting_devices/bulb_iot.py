@@ -1,12 +1,7 @@
 from paho.mqtt.client import Client as MQTTClient
-from paho.mqtt.client import MQTTv311
 import time
-from config import Config
-from lighting_devices.bulb import Bulb
-from pynput.keyboard import Key, Listener
-from functools import partial
-from socket import socket
-import sys
+
+
 class BulbMQTT(MQTTClient):
 
     def __init__(self, *args, **kwargs):
@@ -129,22 +124,4 @@ class BulbMQTT(MQTTClient):
 # sending light status or asking for light status
 
 
-def on_press_disconnect(key,  mqtt_client):
-    if key == Key.esc:
-        if mqtt_client.connected:
-            mqtt_client.send_disconnect()
 
-        mqtt_client.exit = True
-
-
-if __name__ == "__main__":
-    bedroom_light = Bulb('Main_Light', False, False)
-
-    bedroom_light_client = BulbMQTT(bedroom_light, client_id=bedroom_light.name, clean_session=True, protocol=MQTTv311)
-
-    # set listener for key press, if ESC, send disconnect
-    listener = Listener(
-            on_press=partial(on_press_disconnect, mqtt_client=bedroom_light_client))
-
-    listener.start()
-    bedroom_light_client.run("test.mosquitto.org", 1883, 3)
