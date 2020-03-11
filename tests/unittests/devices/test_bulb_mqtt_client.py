@@ -1,10 +1,9 @@
 from lighting_devices.bulb import Bulb
 from lighting_devices.bulb_iot import BulbMQTT
 from paho.mqtt.client import MQTTv311
-from tests.unittests.conftest import ConfigTest as Config
+from tests.unittests.conftest import TestConfig as Config
 import time
 import mock
-import pytest
 from paho.mqtt.client import Client as MQTTClient
 import threading
 
@@ -33,7 +32,7 @@ class TestMQTTDevice(object):
 
         # check connection and mock rc to exit
         with mock.patch.object(self.light_room_client, 'rc', 1) as d:
-            self.light_room_client.run(Config.BROKER_ADDRESS, Config.PORT, Config.KEEPALIVE)
+            self.light_room_client.run(Config.MQTT_BROKER_URL, Config.MQTT_BROKER_PORT, Config.MQTT_KEEPALIVE)
             assert self.light_room_client.connected is True
             self.light_room_client.disconnect()
 
@@ -47,7 +46,7 @@ class TestMQTTDevice(object):
         assert self.light_room_client.connected is False
 
         # try reconnect
-        self.light_room_client.try_connect(Config.BROKER_ADDRESS, Config.PORT, Config.KEEPALIVE)
+        self.light_room_client.try_connect(Config.MQTT_BROKER_URL, Config.MQTT_BROKER_PORT, Config.MQTT_KEEPALIVE)
         assert self.light_room_client.connected is True
 
         self.light_room_client.disconnect()
@@ -60,12 +59,12 @@ class TestMQTTDevice(object):
         self.test_client.message_callback_add(self.light_room_client.topic_bulb_status, self.callbacks.published)
 
         # connect test client, loop start and subscribe
-        self.test_client.connect(Config.BROKER_ADDRESS, Config.PORT, Config.KEEPALIVE) # connect to broker
+        self.test_client.connect(Config.MQTT_BROKER_URL, Config.MQTT_BROKER_PORT, Config.MQTT_KEEPALIVE)# connect to broker
         self.test_client.loop_start()
         self.test_client.subscribe(topic=self.light_room_client.topic_bulb_status, qos=2)
 
         # start thread with bulb client
-        thread1 = threading.Thread(target=self.light_room_client.run, args = (Config.BROKER_ADDRESS, Config.PORT, Config.KEEPALIVE))
+        thread1 = threading.Thread(target=self.light_room_client.run, args = (Config.MQTT_BROKER_URL, Config.MQTT_BROKER_PORT, Config.MQTT_KEEPALIVE))
         thread1.start()
         time.sleep(2)
         assert self.light_room_client.connected is True

@@ -16,6 +16,7 @@ class BulbMQTT(MQTTClient):
         self.topic_light_set = f'home/light/{self.bulb.name}/light/set'
         self.topic_light_status = f'home/light/{self.bulb.name}/light/status'
         self.topic_light_get = f'home/light/{self.bulb.name}/light/get'
+        self.topic_register = f'home/register'
         self.rc = 0
         self.exit = False
 
@@ -26,12 +27,15 @@ class BulbMQTT(MQTTClient):
         self.bulb.status = True
 
         # subscribe topics
-        self.subscribe(topic=self.topic_bulb_status, qos=2)
+        self.subscribe(topic=self.topic_bulb_get, qos=2)
         self.subscribe(topic=self.topic_light_set, qos=2)
-        self.subscribe(topic=self.topic_light_status, qos=2)
+        self.subscribe(topic=self.topic_light_get, qos=2)
 
         # set will_set device status to off after disconnects without disconnect()
         self.will_set(topic=self.topic_bulb_status, payload="off", qos=2, retain=True)
+
+        # register device
+        self.publish(topic=self.topic_register, payload=self.bulb.name, qos=2)
 
         # publish bulb light and status
         self.publish(topic=self.topic_bulb_status, payload=self.bulb_status_payload(), qos=2)

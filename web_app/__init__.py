@@ -2,12 +2,16 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from config import Config
-from flask_mqtt import Mqtt
+import threading
+
+from paho.mqtt.client import MQTTv311
 
 # db and migrate definition
 db = SQLAlchemy()
 migrate = Migrate()
-mqtt = Mqtt()
+
+from web_app.mqtt_client.client import FlaskMQTT
+mqtt_client = FlaskMQTT(client_id='FLASK_MQTT', clean_session=Config.MQTT_CLEAN_SESSION, protocol=MQTTv311)
 
 
 def create_app(config_class=Config):
@@ -19,16 +23,23 @@ def create_app(config_class=Config):
 
     ## logger
 
-
     # db, migrate init
     db.init_app(app)
     migrate.init_app(app, db)
+    mqtt_client.init_app(app)
+    mqtt_client.run(Config.MQTT_BROKER_URL, Config.MQTT_BROKER_PORT, Config.MQTT_KEEPALIVE)
 
-    # mqtt init
-    mqtt.init_app(app)
 
     # register main blueprint
     from web_app.api import bp as api_bp
     app.register_blueprint(api_bp)
 
     return app
+
+
+# def start_mqtt(mqtt_client):
+#
+#     mqtt = threading.Thread(target=mqtt_client.run, args=(Config.MQTT_BROKER_URL, Config.MQTT_BROKER_PORT, Config.MQTT_KEEPALIVE))
+#     mqtt.start()
+
+from web_app import models
