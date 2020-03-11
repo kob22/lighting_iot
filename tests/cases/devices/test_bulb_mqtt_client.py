@@ -1,7 +1,7 @@
 from lighting_devices.bulb import Bulb
 from lighting_devices.bulb_iot import BulbMQTT
 from paho.mqtt.client import MQTTv311
-from tests.unittests.conftest import TestConfig as Config
+from tests.cases.conftest import TestConfig as Config
 import time
 import mock
 from paho.mqtt.client import Client as MQTTClient

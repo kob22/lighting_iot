@@ -7,10 +7,16 @@ from web_app import mqtt_client
 from web_app.models import Device
 
 
+@bp.route('/', methods=['GET'])
+def index():
+    return 'OK', 200
+
+
 @bp.route('/devices', methods=['GET'])
 def devices():
     all_devices = Device.query.all()
     return jsonify([dev.serialize for dev in all_devices])
+
 
 @bp.route('/device/<string:dev_name>/set/<string:light>', methods=['POST'])
 def set_light(dev_name, light):
@@ -24,9 +30,9 @@ def set_light(dev_name, light):
 
     if find_device and light in ['on', 'off']:
         mqtt_client.publish(topic=f'home/light/{find_device.name}/light/set', payload=light, qos=2)
-        return jsonify({'MSG':'OK'}),200
+        return jsonify({'MSG':'OK'}), 200
     else:
-        return 400
+        return jsonify({'Error':'No device or wrong command'}), 400
 # @mqtt.on_message()
 # def register_device(client, userdata, message):
 #     print('asfsa')

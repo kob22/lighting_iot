@@ -1,11 +1,11 @@
 
 from paho.mqtt.client import MQTTv311
-from tests.unittests.conftest import TestConfig as Config
+from tests.cases.conftest import TestConfig as Config
 
 from paho.mqtt.client import Client as MQTTClient
 import time
 from web_app.models import Device
-
+import json
 
 class TestAPI(object):
 
@@ -24,7 +24,8 @@ class TestAPI(object):
         rooms = ['Bedroom', 'Kitchen', 'Living_room']
 
         for room in rooms:
-            wait = self.test_client.publish(topic='home/register', payload=room, qos=2)
+            msg_register = {'name': room, 'light': 'on', 'status': 'off'}
+            wait = self.test_client.publish(topic='home/register', payload=json.dumps(msg_register), qos=2)
             wait.wait_for_publish()
         time.sleep(2)
         devices = Device.query.all()
