@@ -29,7 +29,7 @@ mqtt_clients = []
 # create clients for every room
 for room in rooms:
 
-    temp_bulb = Bulb(room, False, False)
+    temp_bulb = Bulb(room, True, False)
     mqtt_clients.append(BulbMQTT(temp_bulb, client_id=temp_bulb.name, clean_session=True, protocol=MQTTv311))
     bulbs.append(temp_bulb)
 

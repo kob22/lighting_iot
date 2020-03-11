@@ -1,6 +1,6 @@
 from paho.mqtt.client import Client as MQTTClient
 import time
-
+import json
 
 class BulbMQTT(MQTTClient):
 
@@ -35,7 +35,8 @@ class BulbMQTT(MQTTClient):
         self.will_set(topic=self.topic_bulb_status, payload="off", qos=2, retain=True)
 
         # register device
-        self.publish(topic=self.topic_register, payload=self.bulb.name, qos=2)
+        msg_register = {'name': self.bulb.name, 'light': self.bulb.light, 'status': self.bulb.status}
+        self.publish(topic=self.topic_register, payload=json.dumps(msg_register), qos=2)
 
         # publish bulb light and status
         self.publish(topic=self.topic_bulb_status, payload=self.bulb_status_payload(), qos=2)
@@ -112,11 +113,13 @@ class BulbMQTT(MQTTClient):
         """
         Set bulb light from message
         """
-
-        if msg == 'on':
+        message = msg.payload.decode("utf-8")
+        if message == 'on':
             self.bulb.light = True
-        elif msg == 'off':
+        elif message == 'off':
             self.bulb.light = False
+        print(self.bulb.light)
+        self.publish(topic=self.topic_light_status, payload=self.bulb_light_status_payload(), qos=2)
 
     def on_message_light_status(self, mosq, obj, msg):
         """
