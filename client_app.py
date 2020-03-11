@@ -1,8 +1,7 @@
 import sys
 import requests
 import urllib.parse
-import json
-from pprint import pprint
+
 
 def try_connect(addres_api):
     """

@@ -1,0 +1,32 @@
+version: "3"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mosquitto
+    volumes:
+      - .:/app
+  lighting_devices:
+    build: './lighting_devices'
+    depends_on:
+      - mosquitto
+      - web
+    volumes:
+      - .:/light
+  mosquitto:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    expose:
+      - "1883"
+      - "9001"
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    networks:
+      - default
